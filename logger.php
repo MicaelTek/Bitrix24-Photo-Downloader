@@ -211,6 +211,21 @@ if (!$is_api) {
             card.style.display = text.includes(input) ? '' : 'none';
         });
     }
+
+    // Auto-refresh inteligente a cada 5 segundos
+    setInterval(function() {
+        fetch(window.location.href)
+        .then(response => response.text())
+        .then(html => {
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(html, 'text/html');
+            let novaGrid = doc.querySelector('.cards-grid');
+            if (novaGrid) {
+                document.querySelector('.cards-grid').innerHTML = novaGrid.innerHTML;
+                filtrarCards(); // reaplica a pesquisa sem piscar a tela
+            }
+        });
+    }, 5000);
     </script>
     </body>
     </html>
