@@ -1,6 +1,6 @@
 """
 =============================================================================
-Bitrix24 - Downloader de Fotos (Interface Grafica v2.0 — Edicao Segura)
+Bitrix24 - Downloader de Fotos (Interface Grafica v2.1 — Edicao Segura)
 =============================================================================
 Seguranca implementada:
   [1] Autenticacao por senha com hash PBKDF2-SHA256 + salt aleatorio
@@ -1132,8 +1132,6 @@ class BitrixApp(ctk.CTk):
         content.pack(fill="both", expand=True, padx=20, pady=14)
         self._build_actions(content)
         self._build_tabs(content)
-        # Carrega URL descriptografada APOS a UI estar pronta
-        self.after(100, self._carregar_url_salva)
 
     def _build_header(self):
         hdr = ctk.CTkFrame(self, fg_color=BG_CARD, corner_radius=0, height=68)
@@ -1157,7 +1155,7 @@ class BitrixApp(ctk.CTk):
 
         ctk.CTkLabel(
             hdr,
-            text="v2.0  |  Edicao Segura",
+            text="v2.1  |  Edicao Segura",
             font=ctk.CTkFont("Segoe UI", 11),
             text_color=TEXT_SECONDARY,
         ).pack(side="right", padx=20)

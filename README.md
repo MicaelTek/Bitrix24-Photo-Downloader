@@ -1,4 +1,4 @@
-# Bitrix24 Foto Downloader (Edição Segura v2.0)
+# Bitrix24 Foto Downloader (Edicao Segura v2.1)
 
 Este aplicativo é uma solução segura com interface gráfica para baixar fotos de perfil de usuários diretamente de um portal Bitrix24 utilizando Webhooks locais.
 
