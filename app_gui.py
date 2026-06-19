@@ -1553,10 +1553,9 @@ class BitrixApp(ctk.CTk):
         self._card_widgets[path] = card
 
         try:
-            from PIL import ImageOps
             img = Image.open(path)
-            img = ImageOps.fit(img, THUMBNAIL_SIZE, Image.LANCZOS)
-            ci = ctk.CTkImage(light_image=img, dark_image=img, size=THUMBNAIL_SIZE)
+            img.thumbnail(THUMBNAIL_SIZE, Image.LANCZOS)
+            ci = ctk.CTkImage(light_image=img, dark_image=img, size=img.size)
             lbl = ctk.CTkLabel(
                 card, image=ci, text="", cursor="hand2", fg_color="transparent"
             )
