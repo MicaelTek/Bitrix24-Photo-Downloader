@@ -512,7 +512,6 @@ class JanelaCriarSenha(ctk.CTkToplevel):
             return
 
         if self.sec.criar_senha(senha, nome, depto):
-            self.master.deiconify()
             self.destroy()
         else:
             self.lbl_erro.configure(text="Erro ao criar senha. Tente novamente.")
@@ -702,7 +701,6 @@ class JanelaLogin(ctk.CTkToplevel):
 
         sucesso, msg = self.sec.autenticar(senha)
         if sucesso:
-            self.master.deiconify()
             self.destroy()
             return
 
@@ -1610,13 +1608,12 @@ def main():
             sys.exit(0)
         root.destroy()
 
-    while True:
-        sec = SecurityManager()
+def main():
+    sec = SecurityManager()
+    app = BitrixApp(sec)
+    app.withdraw()  # Oculta antes do mainloop iniciar
 
-        # Cria a janela principal oculta (CTk precisa existir para CTkToplevel funcionar)
-        app = BitrixApp(sec)
-        app.withdraw()
-
+    def _verificar_login():
         if sec.primeiro_uso():
             dialogo = JanelaCriarSenha(app, sec)
         else:
@@ -1630,19 +1627,16 @@ def main():
             app.attributes("-topmost", True)
             app.after(100, lambda: app.attributes("-topmost", False))
             app.focus_force()
-            app.mainloop()
-            break  # Encerra caso o app principal seja fechado
         else:
-            try:
-                app.destroy()
-            except Exception:
-                pass
-
-            # Se o fechamento foi devido a um reset, volta pro loop e refaz tudo
-            if hasattr(dialogo, "reset_solicitado") and dialogo.reset_solicitado:
-                continue
+            reset = getattr(dialogo, "reset_solicitado", False)
+            app.destroy()
+            if reset:
+                main()
             else:
                 sys.exit(0)
+
+    app.after(10, _verificar_login)
+    app.mainloop()
 
 
 if __name__ == "__main__":
