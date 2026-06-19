@@ -137,6 +137,9 @@ if (!$is_api) {
         <div class="container">
             <div class="header-bar">
                 <h1>Painel de Monitoramento</h1>
+                <div style="flex: 1; margin: 0 20px; text-align: center;">
+                    <input type="text" id="searchInput" placeholder="Pesquisar IP, Usuário, Máquina..." style="width: 100%; max-width: 400px;" onkeyup="filtrarCards()">
+                </div>
                 <a href="?logout=1"><button class="btn-logout">Desconectar</button></a>
             </div>
             
@@ -181,7 +184,11 @@ if (!$is_api) {
                         <div class="event-item">
                             <div class="event-header">
                                 <span class="badge <?= $badge_class ?>"><?= $acao ?></span>
-                                <span class="event-time"><?= date('d/m H:i:s', strtotime($evento['data_hora'])) ?></span>
+                                <?php
+                                    $data_utc = new DateTime($evento['data_hora'], new DateTimeZone('UTC'));
+                                    $data_utc->setTimezone(new DateTimeZone('America/Sao_Paulo'));
+                                ?>
+                                <span class="event-time"><?= $data_utc->format('d/m H:i:s') ?></span>
                             </div>
                             <div class="event-details">
                                 <?= nl2br(htmlspecialchars($evento['detalhes'])) ?>
@@ -194,6 +201,17 @@ if (!$is_api) {
             </div>
         </div>
     <?php endif; ?>
+    
+    <script>
+    function filtrarCards() {
+        let input = document.getElementById('searchInput').value.toLowerCase();
+        let cards = document.querySelectorAll('.cards-grid .card');
+        cards.forEach(card => {
+            let text = card.innerText.toLowerCase();
+            card.style.display = text.includes(input) ? '' : 'none';
+        });
+    }
+    </script>
     </body>
     </html>
     <?php
