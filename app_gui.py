@@ -45,15 +45,16 @@ from urllib3.util.retry import Retry
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
-ACCENT = "#3B82F6"
-ACCENT_HOVER = "#2563EB"
+ACCENT = "#FFFFFF"
+ACCENT_HOVER = "#E5E5E5"
 ERROR_CLR = "#EF4444"
-BG_DARK = "#0F172A"
-BG_CARD = "#1E293B"
-BG_INPUT = "#1E293B"
-TEXT_PRIMARY = "#F1F5F9"
-TEXT_SECONDARY = "#94A3B8"
-BORDER_COLOR = "#334155"
+BG_DARK = "#09090B"
+BG_CARD = "#18181B"
+BG_INPUT = "#27272A"
+TEXT_PRIMARY = "#FAFAFA"
+TEXT_SECONDARY = "#A1A1AA"
+BORDER_COLOR = "#3F3F46"
+TEXT_ON_ACCENT = "#000000"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Constantes de Operacao
@@ -472,7 +473,7 @@ class JanelaCriarSenha(ctk.CTkToplevel):
             font=ctk.CTkFont("Segoe UI", 14, "bold"),
             fg_color=ACCENT,
             hover_color=ACCENT_HOVER,
-            text_color="white",
+            text_color=TEXT_ON_ACCENT,
             height=44,
             corner_radius=8,
             command=self._confirmar,
@@ -581,7 +582,7 @@ class JanelaLogin(ctk.CTkToplevel):
             font=ctk.CTkFont("Segoe UI", 14, "bold"),
             fg_color=ACCENT,
             hover_color=ACCENT_HOVER,
-            text_color="white",
+            text_color=TEXT_ON_ACCENT,
             height=46,
             corner_radius=8,
             command=self._entrar,
@@ -1028,7 +1029,7 @@ class JanelaFoto(ctk.CTkToplevel):
             width=190,
             fg_color=ACCENT,
             hover_color=ACCENT_HOVER,
-            text_color="white",
+            text_color=TEXT_ON_ACCENT,
             command=self._abrir,
         ).pack(side="left", padx=4)
         ctk.CTkButton(
@@ -1214,7 +1215,7 @@ class BitrixApp(ctk.CTk):
             font=ctk.CTkFont("Segoe UI", 14, "bold"),
             fg_color=ACCENT,
             hover_color=ACCENT_HOVER,
-            text_color="white",
+            text_color=TEXT_ON_ACCENT,
             height=44,
             width=200,
             corner_radius=8,
