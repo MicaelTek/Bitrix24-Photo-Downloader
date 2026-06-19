@@ -52,9 +52,16 @@ try {
 }
 
 // ============================================================================
-// MODO PAINEL WEB (GET)
+// ROUTING E MODO PAINEL WEB
 // ============================================================================
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $_SERVER['REQUEST_METHOD'] !== 'OPTIONS') {
+$is_api = false;
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS' || 
+    (isset($_SERVER["CONTENT_TYPE"]) && strpos($_SERVER["CONTENT_TYPE"], 'application/json') !== false) || 
+    isset($_SERVER['HTTP_X_AUDIT_TOKEN'])) {
+    $is_api = true;
+}
+
+if (!$is_api) {
     session_start();
     
     // Verifica login
