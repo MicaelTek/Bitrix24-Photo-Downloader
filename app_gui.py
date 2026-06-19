@@ -421,11 +421,16 @@ class JanelaCriarSenha(ctk.CTkToplevel):
             font=ctk.CTkFont("Segoe UI", 12),
             text_color=TEXT_SECONDARY,
         ).pack(anchor="w", padx=16, pady=(0, 4))
-        self.entry_depto = ctk.CTkEntry(
+        self.entry_depto = ctk.CTkOptionMenu(
             card,
+            values=["Marketing", "Financeiro", "TI", "Comercial"],
             height=40,
             fg_color=BG_INPUT,
-            border_color=BORDER_COLOR,
+            button_color=BORDER_COLOR,
+            button_hover_color=ACCENT_HOVER,
+            dropdown_fg_color=BG_CARD,
+            dropdown_hover_color=ACCENT_HOVER,
+            dropdown_text_color=TEXT_PRIMARY,
             text_color=TEXT_PRIMARY,
         )
         self.entry_depto.pack(fill="x", padx=16, pady=(0, 16))
