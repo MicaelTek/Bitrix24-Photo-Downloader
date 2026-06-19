@@ -40,7 +40,7 @@ Para que o aplicativo consiga puxar os dados, a equipe precisará de uma chave d
    - **Usuários (user)**
 5. Salve. O sistema vai gerar uma URL única que se parece com:
    `https://sua-empresa.bitrix24.com.br/rest/1/codigo_secreto_aqui/`
-6. **Copie essa URL completa** e cole na primeira tela do aplicativo "Bitrix24 Fotos" logo após criar sua senha de acesso.
+6. **Copie essa URL completa** e cole na variável `API_WEBHOOK_URL` no topo do arquivo `app_gui.py` antes de rodar a compilação do executável.
 
 ## Auditoria PHP (Opcional)
 

@@ -59,7 +59,7 @@ TEXT_ON_ACCENT = "#000000"
 # ─────────────────────────────────────────────────────────────────────────────
 # Constantes de Operacao
 # ─────────────────────────────────────────────────────────────────────────────
-BASE_DIR = Path(__file__).parent
+BASE_DIR = Path("C:/Bitrix24Fotos")
 PASTA_DESTINO = BASE_DIR / "fotos_usuarios_bitrix"
 ARQUIVO_INDICE = PASTA_DESTINO / "indice.json"
 EXTENSOES_IMGS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"}
@@ -71,12 +71,13 @@ MAX_RETRIES = 3
 THUMBNAIL_SIZE = (140, 140)
 GALLERY_COLS = 4
 
+# Cole aqui a URL gerada no portal do Bitrix24 antes de gerar o .exe
+API_WEBHOOK_URL = "https://sua-empresa.bitrix24.com.br/rest/1/codigo/"
+
 # URL do seu cPanel onde o logger.php foi hospedado.
-# Exemplo: "https://seusite.com.br/logger.php"
 API_LOGGER_URL = "https://labspessoa.com.br/logger.php"
 
 # Token de seguranca para evitar que terceiros enviem lixo para seu banco
-# Deve ser EXATAMENTE O MESMO que esta no logger.php
 API_LOGGER_TOKEN = "BX24_LOG_77A8F932D939"
 
 # =============================================================================
@@ -459,6 +460,19 @@ class JanelaCriarSenha(ctk.CTkToplevel):
         )
         self.entry_confirma.pack(fill="x", padx=16, pady=(4, 16))
 
+        # O botão agora está dentro do 'card'
+        ctk.CTkButton(
+            card,
+            text="Salvar Perfil e Continuar",
+            font=ctk.CTkFont("Segoe UI", 14, "bold"),
+            fg_color=ACCENT,
+            hover_color=ACCENT_HOVER,
+            text_color=TEXT_ON_ACCENT,
+            height=40,
+            corner_radius=8,
+            command=self._confirmar,
+        ).pack(padx=16, pady=(10, 16), fill="x")
+
         self.lbl_erro = ctk.CTkLabel(
             self,
             text="",
@@ -466,19 +480,6 @@ class JanelaCriarSenha(ctk.CTkToplevel):
             text_color=ERROR_CLR,
         )
         self.lbl_erro.pack(pady=(10, 0))
-
-        ctk.CTkButton(
-            self,
-            text="Salvar Perfil e Continuar",
-            font=ctk.CTkFont("Segoe UI", 14, "bold"),
-            fg_color=ACCENT,
-            hover_color=ACCENT_HOVER,
-            text_color=TEXT_ON_ACCENT,
-            height=44,
-            corner_radius=8,
-            command=self._confirmar,
-        ).pack(padx=32, pady=16, fill="x")
-
         self.entry_senha.bind("<Return>", lambda e: self.entry_confirma.focus())
         self.entry_confirma.bind("<Return>", lambda e: self._confirmar())
         self.entry_nome.focus()
@@ -1124,7 +1125,6 @@ class BitrixApp(ctk.CTk):
         self._build_header()
         content = ctk.CTkFrame(self, fg_color="transparent")
         content.pack(fill="both", expand=True, padx=20, pady=14)
-        self._build_config(content)
         self._build_actions(content)
         self._build_tabs(content)
         # Carrega URL descriptografada APOS a UI estar pronta
@@ -1156,51 +1156,6 @@ class BitrixApp(ctk.CTk):
             font=ctk.CTkFont("Segoe UI", 11),
             text_color=TEXT_SECONDARY,
         ).pack(side="right", padx=20)
-
-    def _build_config(self, parent):
-        card = ctk.CTkFrame(parent, fg_color=BG_CARD, corner_radius=12)
-        card.pack(fill="x", pady=(0, 10))
-
-        ctk.CTkLabel(
-            card,
-            text="Webhook URL do Bitrix24",
-            font=ctk.CTkFont("Segoe UI", 13, "bold"),
-            text_color=TEXT_PRIMARY,
-        ).pack(anchor="w", padx=16, pady=(12, 4))
-
-        row = ctk.CTkFrame(card, fg_color="transparent")
-        row.pack(fill="x", padx=16, pady=(0, 12))
-
-        self.url_entry = ctk.CTkEntry(
-            row,
-            placeholder_text="https://SUA_EMPRESA.bitrix24.com.br/rest/1/TOKEN/",
-            font=ctk.CTkFont("Segoe UI", 12),
-            fg_color=BG_INPUT,
-            border_color=BORDER_COLOR,
-            text_color=TEXT_PRIMARY,
-            height=40,
-        )
-        self.url_entry.pack(side="left", fill="x", expand=True, padx=(0, 10))
-
-        ctk.CTkButton(
-            row,
-            text="Salvar URL",
-            font=ctk.CTkFont("Segoe UI", 12),
-            fg_color=BORDER_COLOR,
-            hover_color="#475569",
-            text_color=TEXT_PRIMARY,
-            width=110,
-            height=40,
-            command=self._salvar_url,
-        ).pack(side="left")
-
-        # Aviso de segurança do escopo do webhook
-        ctk.CTkLabel(
-            card,
-            text="Certifique-se de que o Webhook tem apenas a permissao 'Usuarios' ativada no Bitrix24.",
-            font=ctk.CTkFont("Segoe UI", 10),
-            text_color=WARNING_CLR,
-        ).pack(anchor="w", padx=16, pady=(0, 8))
 
     def _build_actions(self, parent):
         card = ctk.CTkFrame(parent, fg_color=BG_CARD, corner_radius=12)
@@ -1337,31 +1292,12 @@ class BitrixApp(ctk.CTk):
         self.gallery_placeholder.pack(expand=True)
         self.gallery_scroll = None
 
-    def _carregar_url_salva(self):
-        """Carrega o Webhook URL descriptografado na UI apos o login."""
-        url = self.sec.get_webhook_url()
-        if url:
-            self.url_entry.delete(0, "end")
-            self.url_entry.insert(0, url)
-
     # ── Acoes ────────────────────────────────────────────────────────────────
 
-    def _salvar_url(self):
-        url = self.url_entry.get().strip()
-        if not url:
-            self._log("error", "URL nao pode estar vazia.")
-            return
-        if self.sec.salvar_webhook_url(url):
-            self._log("success", "URL salva e criptografada com sucesso!")
-        else:
-            self._log(
-                "error", "Erro ao salvar URL. Verifique se voce esta autenticado."
-            )
-
     def _iniciar(self):
-        url = self.url_entry.get().strip()
+        url = API_WEBHOOK_URL.strip()
         if not url:
-            self._log("error", "Insira a URL do Webhook antes de iniciar.")
+            self._log("error", "Constante API_WEBHOOK_URL não configurada no código.")
             return
         parsed = urlparse(url)
         if parsed.scheme not in ("https", "http"):
@@ -1637,6 +1573,33 @@ WARNING_CLR = "#F59E0B"
 
 
 def main():
+    import tkinter as tk
+    from tkinter import messagebox
+
+    if not BASE_DIR.exists():
+        root = tk.Tk()
+        root.withdraw()
+        resposta = messagebox.askyesno(
+            "Permissao Necessaria",
+            f"O aplicativo precisa criar a pasta {BASE_DIR} no disco local para salvar as configuracoes de acesso e as fotos.\n\nDeseja permitir?"
+        )
+        if resposta:
+            try:
+                BASE_DIR.mkdir(parents=True, exist_ok=True)
+                PASTA_DESTINO.mkdir(parents=True, exist_ok=True)
+            except PermissionError:
+                messagebox.showerror(
+                    "Erro de Permissao", 
+                    f"Acesso negado ao tentar criar {BASE_DIR}.\n\nPor favor, execute o aplicativo como Administrador clicando com o botao direito do mouse."
+                )
+                sys.exit(1)
+            except Exception as e:
+                messagebox.showerror("Erro", f"Erro inesperado: {e}")
+                sys.exit(1)
+        else:
+            sys.exit(0)
+        root.destroy()
+
     while True:
         sec = SecurityManager()
 
