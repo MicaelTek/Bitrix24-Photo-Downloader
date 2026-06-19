@@ -38,16 +38,21 @@ Para que o aplicativo consiga puxar os dados, a equipe precisará de uma chave d
 3. Escolha a opção **Outro** e clique em **Webhook de Entrada** (Inbound webhook).
 4. Em **Atribuição de Permissões**, selecione as permissões necessárias:
    - **Usuários (user)**
-5. Salve. O sistema vai gerar uma URL única que se parece com:
-   `https://sua-empresa.bitrix24.com.br/rest/1/codigo_secreto_aqui/`
-6. **Copie essa URL completa** e cole na variável `API_WEBHOOK_URL` no topo do arquivo `app_gui.py` antes de rodar a compilação do executável.
+5. Salve. O sistema vai gerar uma URL única.
 
-## Auditoria PHP (Opcional)
+## Configurando Segredos (.env) e Compilando
 
-Se você desejar registrar os acessos de forma remota:
-1. Suba o arquivo `logger.php` em seu servidor (ex: cPanel).
-2. Configure a constante de segurança `SECRET_TOKEN` no PHP e copie para a variável `API_LOGGER_TOKEN` no Python.
-3. O painel SQLite será gerado automaticamente.
+Para não expor dados críticos no código-fonte ou no repositório:
+1. Copie o arquivo `.env.example` e renomeie a cópia para `.env` (este arquivo está protegido pelo gitignore).
+2. Cole a URL do webhook recém-criada na variável `API_WEBHOOK_URL` dentro do `.env`.
+3. (Opcional) Configure as variáveis `API_LOGGER_URL` e `API_LOGGER_TOKEN` se for usar auditoria em PHP.
+4. Execute o script de compilação:
+   ```bash
+   .\build_exe.bat
+   ```
+5. O aplicativo embutirá essas chaves na memória da compilação de forma segura (utilize o hook do PyInstaller para arquivos invisíveis se necessário). O binário pronto ficará na pasta `dist/`.
+
+
 
 ## Arquivos do Projeto
 

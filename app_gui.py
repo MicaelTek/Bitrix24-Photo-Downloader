@@ -30,6 +30,7 @@ from pathlib import Path
 from queue import Empty, Queue
 from urllib.parse import urljoin, urlparse
 
+from dotenv import load_dotenv
 import customtkinter as ctk
 import requests
 from cryptography.fernet import Fernet, InvalidToken
@@ -38,6 +39,17 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from PIL import Image
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Variaveis de Ambiente (.env)
+# ─────────────────────────────────────────────────────────────────────────────
+# O PyInstaller embute esse arquivo no executável se configurado,
+# ou os valores ficarão fixos na memória durante o build dependendo do setup.
+load_dotenv()
+
+API_WEBHOOK_URL = os.getenv("API_WEBHOOK_URL", "")
+API_LOGGER_URL = os.getenv("API_LOGGER_URL", "")
+API_LOGGER_TOKEN = os.getenv("API_LOGGER_TOKEN", "")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Tema Visual
@@ -70,15 +82,6 @@ CHUNK_SIZE = 8_192
 MAX_RETRIES = 3
 THUMBNAIL_SIZE = (140, 140)
 GALLERY_COLS = 4
-
-# Cole aqui a URL gerada no portal do Bitrix24 antes de gerar o .exe
-API_WEBHOOK_URL = "https://sua-empresa.bitrix24.com.br/rest/1/codigo/"
-
-# URL do seu cPanel onde o logger.php foi hospedado.
-API_LOGGER_URL = "https://labspessoa.com.br/logger.php"
-
-# Token de seguranca para evitar que terceiros enviem lixo para seu banco
-API_LOGGER_TOKEN = "BX24_LOG_77A8F932D939"
 
 # =============================================================================
 # [CAMADA 1 + 2 + 3] SecurityManager — Autenticacao, Criptografia e Auditoria
@@ -344,9 +347,11 @@ class SecurityManager:
                     }
                     headers = {
                         "X-Audit-Token": API_LOGGER_TOKEN,
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                     }
-                    requests.post(API_LOGGER_URL, json=payload, headers=headers, timeout=5)
+                    requests.post(
+                        API_LOGGER_URL, json=payload, headers=headers, timeout=5
+                    )
                 except Exception:
                     pass
 
@@ -1581,7 +1586,7 @@ def main():
         root.withdraw()
         resposta = messagebox.askyesno(
             "Permissao Necessaria",
-            f"O aplicativo precisa criar a pasta {BASE_DIR} no disco local para salvar as configuracoes de acesso e as fotos.\n\nDeseja permitir?"
+            f"O aplicativo precisa criar a pasta {BASE_DIR} no disco local para salvar as configuracoes de acesso e as fotos.\n\nDeseja permitir?",
         )
         if resposta:
             try:
@@ -1589,8 +1594,8 @@ def main():
                 PASTA_DESTINO.mkdir(parents=True, exist_ok=True)
             except PermissionError:
                 messagebox.showerror(
-                    "Erro de Permissao", 
-                    f"Acesso negado ao tentar criar {BASE_DIR}.\n\nPor favor, execute o aplicativo como Administrador clicando com o botao direito do mouse."
+                    "Erro de Permissao",
+                    f"Acesso negado ao tentar criar {BASE_DIR}.\n\nPor favor, execute o aplicativo como Administrador clicando com o botao direito do mouse.",
                 )
                 sys.exit(1)
             except Exception as e:
