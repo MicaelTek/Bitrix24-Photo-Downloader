@@ -29,6 +29,19 @@ Este aplicativo é uma solução segura com interface gráfica para baixar fotos
 1. Distribua apenas o arquivo `dist/Bitrix24 Fotos.exe`.
 2. **NUNCA** distribua o arquivo `config.dat` (se existir na sua máquina). Cada usuário deve abrir o aplicativo pela primeira vez, criar sua própria senha e configurar a URL do Webhook.
 
+## Como Gerar a URL do Webhook (API Bitrix24)
+
+Para que o aplicativo consiga puxar os dados, a equipe precisará de uma chave de API (Webhook Local) gerada no portal do Bitrix24:
+
+1. Acesse o seu portal do Bitrix24 (ex: `https://sua-empresa.bitrix24.com.br`).
+2. No menu lateral, vá em **Aplicativos** (ou Market) > **Desenvolvimento de Aplicativos** (Developer resources).
+3. Escolha a opção **Outro** e clique em **Webhook de Entrada** (Inbound webhook).
+4. Em **Atribuição de Permissões**, selecione as permissões necessárias:
+   - **Usuários (user)**
+5. Salve. O sistema vai gerar uma URL única que se parece com:
+   `https://sua-empresa.bitrix24.com.br/rest/1/codigo_secreto_aqui/`
+6. **Copie essa URL completa** e cole na primeira tela do aplicativo "Bitrix24 Fotos" logo após criar sua senha de acesso.
+
 ## Auditoria PHP (Opcional)
 
 Se você desejar registrar os acessos de forma remota:
