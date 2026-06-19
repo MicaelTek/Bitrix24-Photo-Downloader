@@ -1495,6 +1495,9 @@ class BitrixApp(ctk.CTk):
         )
         self.entry_busca.pack(side="right", padx=(0, 10))
         self.entry_busca.bind("<KeyRelease>", self._on_busca_change)
+        self.entry_busca.configure(state="disabled") # Desabilita até carregar tudo
+        
+        self._card_widgets = {}
 
         self.gallery_scroll = ctk.CTkScrollableFrame(
             self.gallery_container,
@@ -1513,21 +1516,26 @@ class BitrixApp(ctk.CTk):
         self._busca_timer = self.after(300, self._aplicar_filtro)
 
     def _aplicar_filtro(self):
-        if not self.gallery_scroll:
+        if not self.gallery_scroll or not hasattr(self, "_card_widgets"):
             return
             
         termo = self.entry_busca.get().lower().strip()
-        if not termo:
-            fotos_filtradas = self._fotos_lista
-        else:
-            fotos_filtradas = [f for f in self._fotos_lista if termo in f.stem.lower()]
-            
-        self.lbl_galeria_count.configure(text=f"{len(fotos_filtradas)} foto(s) encontrada(s)")
+        count = 0
         
-        for w in self.gallery_scroll.winfo_children():
-            w.destroy()
+        for path in self._fotos_lista:
+            card = self._card_widgets.get(path)
+            if not card:
+                continue
+                
+            if not termo or termo in path.stem.lower():
+                row = count // GALLERY_COLS
+                col = count % GALLERY_COLS
+                card.grid(row=row, column=col, padx=6, pady=6, sticky="nsew")
+                count += 1
+            else:
+                card.grid_remove()
             
-        self.after(50, self._carregar_galeria_lote, fotos_filtradas, 0)
+        self.lbl_galeria_count.configure(text=f"{count} foto(s) encontrada(s)")
 
     def _carregar_galeria_lote(self, fotos: list[Path], inicio: int):
         LOTE = GALLERY_COLS * 2
@@ -1536,10 +1544,13 @@ class BitrixApp(ctk.CTk):
             self._add_card(fotos[idx], idx, idx // GALLERY_COLS, idx % GALLERY_COLS)
         if fim < len(fotos):
             self.after(30, self._carregar_galeria_lote, fotos, fim)
+        else:
+            self.entry_busca.configure(state="normal")
 
     def _add_card(self, path: Path, foto_idx: int, row: int, col: int):
         card = ctk.CTkFrame(self.gallery_scroll, fg_color=BG_CARD, corner_radius=10)
         card.grid(row=row, column=col, padx=6, pady=6, sticky="nsew")
+        self._card_widgets[path] = card
 
         try:
             from PIL import ImageOps
