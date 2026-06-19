@@ -25,6 +25,11 @@ import re
 import subprocess
 import sys
 import threading
+import traceback
+
+sys.stderr = open("crash.log", "a", encoding="utf-8")
+sys.stdout = sys.stderr
+
 from datetime import datetime, timedelta
 from pathlib import Path
 from queue import Empty, Queue
@@ -1621,6 +1626,10 @@ def main():
 
         if sec.autenticado:
             app.deiconify()
+            app.state("normal")
+            app.attributes("-topmost", True)
+            app.after(100, lambda: app.attributes("-topmost", False))
+            app.focus_force()
             app.mainloop()
             break  # Encerra caso o app principal seja fechado
         else:
