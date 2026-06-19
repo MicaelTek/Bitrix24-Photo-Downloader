@@ -91,23 +91,36 @@ if (!$is_api) {
         <title>Auditoria - Bitrix24 Downloader</title>
         <style>
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f9; color: #333; margin: 0; padding: 20px; }
-            .container { max-width: 1200px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-            h1 { color: #1e293b; margin-top: 0; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-            th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-            th { background: #f8fafc; font-weight: 600; color: #475569; }
-            tr:hover { background: #f1f5f9; }
+            .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+            .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+            h1 { color: #1e293b; margin: 0; }
             .login-box { max-width: 300px; margin: 100px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
             input[type=password] { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; }
-            button { background: #2563eb; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.2s; }
+            button { background: #2563eb; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; }
             button:hover { background: #1d4ed8; }
             .error { color: #ef4444; margin-bottom: 10px; font-weight: bold; }
-            .btn-logout { background: #ef4444; float: right; width: auto; margin-top: -5px; }
+            .btn-logout { background: #ef4444; }
             .btn-logout:hover { background: #dc2626; }
-            .badge { background: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+            .badge { background: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: inline-block; }
             .badge-login { background: #dcfce7; color: #166534; }
             .badge-download { background: #dbeafe; color: #1e40af; }
             .badge-erro { background: #fee2e2; color: #991b1b; }
+            
+            /* Grid de Cards */
+            .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+            .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; }
+            .card-header { background: #f8fafc; padding: 15px; border-bottom: 1px solid #e2e8f0; }
+            .card-header h3 { margin: 0 0 5px 0; color: #1e293b; font-size: 18px; display: flex; align-items: center; justify-content: space-between;}
+            .card-header .user-info { font-size: 13px; color: #475569; }
+            .ip-badge { background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 11px; color: #475569; font-family: monospace; }
+            .card-body { padding: 15px; flex: 1; overflow-y: auto; max-height: 280px; }
+            .card-body::-webkit-scrollbar { width: 6px; }
+            .card-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+            .event-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; }
+            .event-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+            .event-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+            .event-time { font-size: 12px; color: #64748b; }
+            .event-details { font-size: 13px; color: #334155; line-height: 1.4; }
         </style>
     </head>
     <body>
@@ -122,41 +135,63 @@ if (!$is_api) {
         </div>
     <?php else: ?>
         <div class="container">
-            <a href="?logout=1"><button class="btn-logout">Sair</button></a>
-            <h1>Logs de Auditoria do App</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Data/Hora (Servidor)</th>
-                        <th>Ação</th>
-                        <th>Usuário</th>
-                        <th>Departamento</th>
-                        <th>Máquina / IP</th>
-                        <th>Detalhes</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php
-                    $stmt = $db->query("SELECT * FROM logs ORDER BY id DESC LIMIT 500");
-                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                        $acao = htmlspecialchars($row['acao']);
-                        $badge_class = '';
-                        if (strpos($acao, 'LOGIN') !== false) $badge_class = 'badge-login';
-                        if (strpos($acao, 'DOWNLOAD') !== false) $badge_class = 'badge-download';
-                        if (strpos($acao, 'ERRO') !== false || strpos($acao, 'FALHA') !== false) $badge_class = 'badge-erro';
-
-                        echo "<tr>";
-                        echo "<td>" . date('d/m/Y H:i:s', strtotime($row['data_hora'])) . "</td>";
-                        echo "<td><span class='badge $badge_class'>" . $acao . "</span></td>";
-                        echo "<td><strong>" . htmlspecialchars($row['nome']) . "</strong></td>";
-                        echo "<td>" . htmlspecialchars($row['departamento']) . "</td>";
-                        echo "<td><small><strong>" . htmlspecialchars($row['maquina']) . "</strong><br>" . htmlspecialchars($row['ip']) . "</small></td>";
-                        echo "<td>" . nl2br(htmlspecialchars($row['detalhes'])) . "</td>";
-                        echo "</tr>";
+            <div class="header-bar">
+                <h1>Painel de Monitoramento</h1>
+                <a href="?logout=1"><button class="btn-logout">Desconectar</button></a>
+            </div>
+            
+            <div class="cards-grid">
+            <?php
+                // Lê os últimos 1000 logs e os agrupa por Máquina/IP
+                $logs_por_maquina = [];
+                $stmt = $db->query("SELECT * FROM logs ORDER BY id DESC LIMIT 1000");
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $chave = $row['maquina'] . '|' . $row['ip'];
+                    if (!isset($logs_por_maquina[$chave])) {
+                        $logs_por_maquina[$chave] = [
+                            'maquina' => $row['maquina'],
+                            'ip' => $row['ip'],
+                            'nome' => $row['nome'], // Pega o nome do evento mais recente
+                            'departamento' => $row['departamento'],
+                            'eventos' => []
+                        ];
                     }
-                ?>
-                </tbody>
-            </table>
+                    $logs_por_maquina[$chave]['eventos'][] = $row;
+                }
+
+                // Renderiza os cards
+                foreach ($logs_por_maquina as $maquina):
+            ?>
+                <div class="card">
+                    <div class="card-header">
+                        <h3><?= htmlspecialchars($maquina['maquina']) ?></h3>
+                        <div class="user-info">
+                            <strong>👤 <?= htmlspecialchars($maquina['nome']) ?></strong> (<?= htmlspecialchars($maquina['departamento']) ?>)<br>
+                            🌐 IP: <span class="ip-badge"><?= htmlspecialchars($maquina['ip']) ?></span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <?php foreach ($maquina['eventos'] as $evento): 
+                            $acao = htmlspecialchars($evento['acao']);
+                            $badge_class = '';
+                            if (strpos($acao, 'LOGIN') !== false) $badge_class = 'badge-login';
+                            if (strpos($acao, 'DOWNLOAD') !== false) $badge_class = 'badge-download';
+                            if (strpos($acao, 'ERRO') !== false || strpos($acao, 'FALHA') !== false) $badge_class = 'badge-erro';
+                        ?>
+                        <div class="event-item">
+                            <div class="event-header">
+                                <span class="badge <?= $badge_class ?>"><?= $acao ?></span>
+                                <span class="event-time"><?= date('d/m H:i:s', strtotime($evento['data_hora'])) ?></span>
+                            </div>
+                            <div class="event-details">
+                                <?= nl2br(htmlspecialchars($evento['detalhes'])) ?>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+            </div>
         </div>
     <?php endif; ?>
     </body>
