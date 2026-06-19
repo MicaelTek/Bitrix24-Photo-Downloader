@@ -10,10 +10,23 @@ if %errorlevel% neq 0 (
     pip install -r requirements_gui.txt pyinstaller
 )
 
+echo.
+echo [1/3] Executando Testes de Diagnostico e Validando Segredos (.env)...
+echo.
+python diagnostico.py
+if %errorlevel% neq 0 (
+    echo.
+    echo [ERRO FATAL] O teste de conexao ou as configuracoes do .env falharam!
+    echo Corrija os problemas apontados acima antes de compilar o executavel.
+    pause
+    exit /b 1
+)
+echo.
+
 if exist "dist\Bitrix24 Fotos.exe" del /f /q "dist\Bitrix24 Fotos.exe"
 if exist "build" rmdir /s /q "build"
 
-echo [1/2] Gerando executavel (pode levar 2-3 minutos)...
+echo [2/3] Gerando executavel (pode levar 2-3 minutos)...
 echo.
 
 python -m PyInstaller ^
@@ -39,7 +52,7 @@ if %errorlevel% neq 0 (
 )
 
 echo.
-echo [2/2] Limpando arquivos temporarios...
+echo [3/3] Limpando arquivos temporarios...
 if exist "build" rmdir /s /q "build"
 if exist "Bitrix24 Fotos.spec" del /f /q "Bitrix24 Fotos.spec"
 

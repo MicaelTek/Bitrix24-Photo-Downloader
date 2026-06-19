@@ -3,6 +3,7 @@ import sys
 import json
 import requests
 from urllib.parse import urljoin
+from dotenv import load_dotenv
 
 # ==============================================================================
 # SCRIPT DE DIAGNOSTICO COMPLETO - Bitrix24 Foto Downloader
@@ -10,15 +11,16 @@ from urllib.parse import urljoin
 # Use este script para testar se as chaves, webhooks e seu PHP estao funcionando.
 # ==============================================================================
 
-# 1. Coloque sua URL do Webhook do Bitrix24 aqui para testar a conexao com ele
-WEBHOOK_BITRIX = "https://SUA_EMPRESA.bitrix24.com.br/rest/1/SEU_TOKEN/"
+load_dotenv()
 
-# 2. Coloque a URL do seu logger PHP aqui (a mesma que esta no app_gui.py)
-URL_LOGGER_PHP = "https://labspessoa.com.br/logger.php"
+# 1. URL do Webhook do Bitrix24
+WEBHOOK_BITRIX = os.getenv("API_WEBHOOK_URL", "")
 
-# 3. Coloque o Token de seguranca do PHP (o mesmo que esta no app_gui.py)
-TOKEN_LOGGER_PHP = "BX24_LOG_77A8F932D939"
+# 2. URL do logger PHP (Opcional)
+URL_LOGGER_PHP = os.getenv("API_LOGGER_URL", "")
 
+# 3. Token de seguranca do PHP (Opcional)
+TOKEN_LOGGER_PHP = os.getenv("API_LOGGER_TOKEN", "")
 
 def print_title(text):
     print(f"\n{'='*60}\n{text}\n{'='*60}")
@@ -41,9 +43,9 @@ def teste_sistema():
 
 def teste_bitrix():
     print_title("2. DIAGNOSTICO BITRIX24")
-    if "SUA_EMPRESA" in WEBHOOK_BITRIX:
-        print("[!] PULO: URL do Webhook nao configurada no script de teste.")
-        return
+    if not WEBHOOK_BITRIX:
+        print("[-] ERRO FATAL: URL do Webhook nao configurada no .env (API_WEBHOOK_URL).")
+        sys.exit(1)
 
     print(f"[*] Conectando em: {WEBHOOK_BITRIX[:40]}...")
     url_users = urljoin(WEBHOOK_BITRIX, "user.get.json")
@@ -55,19 +57,23 @@ def teste_bitrix():
                 total = len(dados["result"])
                 print(f"[+] SUCESSO: Conexao com Bitrix24 OK! Recebidos {total} usuarios (na primeira pagina).")
             else:
-                print("[-] ERRO: Resposta inesperada do Bitrix. Verifique as permissoes do Webhook.")
+                print("[-] ERRO FATAL: Resposta inesperada do Bitrix. Verifique as permissoes do Webhook.")
+                sys.exit(1)
         elif resp.status_code in [401, 403]:
-            print(f"[-] ERRO: Acesso negado ({resp.status_code}). Token do Webhook pode ser invalido ou expirou.")
+            print(f"[-] ERRO FATAL: Acesso negado ({resp.status_code}). Token do Webhook pode ser invalido ou expirou.")
+            sys.exit(1)
         else:
-            print(f"[-] ERRO HTTP {resp.status_code}: {resp.text}")
+            print(f"[-] ERRO FATAL HTTP {resp.status_code}: {resp.text}")
+            sys.exit(1)
     except Exception as e:
         print(f"[-] ERRO FATAL de Conexao: {e}")
+        sys.exit(1)
 
 def teste_php_logger():
-    print_title("3. DIAGNOSTICO LOGGER PHP (cPanel)")
-    if not URL_LOGGER_PHP or "labspessoa" not in URL_LOGGER_PHP:
-        # Tenta pegar se o usuario so esqueceu de mudar mas ja testamos a logica
-        pass
+    print_title("3. DIAGNOSTICO LOGGER PHP (cPanel) [OPCIONAL]")
+    if not URL_LOGGER_PHP:
+        print("[!] AVISO: URL_LOGGER_PHP nao configurada no .env. A auditoria remota estara desativada.")
+        return
     
     print(f"[*] Enviando teste HTTP POST para: {URL_LOGGER_PHP}")
     payload = {
