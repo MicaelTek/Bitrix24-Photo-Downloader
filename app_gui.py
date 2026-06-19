@@ -1434,15 +1434,21 @@ class BitrixApp(ctk.CTk):
                 self._log("warning", f"    - {n}")
 
         self._build_gallery()
-        self.tabview.set("  Galeria de Fotos  ")
+        self._log("info", "")
+        self._log("success", ">>> CLIQUE NA ABA 'Galeria de Fotos' PARA VISUALIZAR <<<")
 
     # ── Galeria ──────────────────────────────────────────────────────────────
 
     def _clear_gallery(self):
-        if self.gallery_scroll:
-            self.gallery_scroll.destroy()
-            self.gallery_scroll = None
-        self.gallery_placeholder.configure(text="Aguardando conclusao do download...")
+        for w in self.gallery_container.winfo_children():
+            w.destroy()
+        self.gallery_scroll = None
+        self.gallery_placeholder = ctk.CTkLabel(
+            self.gallery_container,
+            text="Aguardando conclusao do download...",
+            font=ctk.CTkFont("Segoe UI", 14),
+            text_color=TEXT_SECONDARY,
+        )
         self.gallery_placeholder.pack(expand=True)
 
     def _build_gallery(self):
@@ -1450,19 +1456,22 @@ class BitrixApp(ctk.CTk):
             [p for p in PASTA_DESTINO.iterdir() if p.suffix.lower() in EXTENSOES_IMGS]
         )
         self._fotos_lista = fotos
-        if self.gallery_scroll:
-            self.gallery_scroll.destroy()
-        self.gallery_placeholder.pack_forget()
+        
+        for w in self.gallery_container.winfo_children():
+            w.destroy()
+        self.gallery_scroll = None
 
-        tab = self.tabview.tab("  Galeria de Fotos  ")
-        top = ctk.CTkFrame(tab, fg_color="transparent")
+        top = ctk.CTkFrame(self.gallery_container, fg_color="transparent")
         top.pack(fill="x", padx=8, pady=(8, 4))
-        ctk.CTkLabel(
+        
+        self.lbl_galeria_count = ctk.CTkLabel(
             top,
             text=f"{len(fotos)} foto(s) disponivel(is)",
             font=ctk.CTkFont("Segoe UI", 13, "bold"),
             text_color=TEXT_PRIMARY,
-        ).pack(side="left")
+        )
+        self.lbl_galeria_count.pack(side="left")
+        
         ctk.CTkButton(
             top,
             text="Abrir Pasta",
@@ -1475,8 +1484,20 @@ class BitrixApp(ctk.CTk):
             command=self._abrir_pasta,
         ).pack(side="right")
 
+        self.entry_busca = ctk.CTkEntry(
+            top,
+            placeholder_text="Pesquisar nome...",
+            font=ctk.CTkFont("Segoe UI", 12),
+            fg_color=BG_INPUT,
+            border_color=BORDER_COLOR,
+            height=32,
+            width=200
+        )
+        self.entry_busca.pack(side="right", padx=(0, 10))
+        self.entry_busca.bind("<KeyRelease>", self._on_busca_change)
+
         self.gallery_scroll = ctk.CTkScrollableFrame(
-            tab,
+            self.gallery_container,
             fg_color="#080F1A",
             corner_radius=8,
         )
@@ -1485,6 +1506,28 @@ class BitrixApp(ctk.CTk):
             self.gallery_scroll.grid_columnconfigure(c, weight=1)
 
         self.after(50, self._carregar_galeria_lote, fotos, 0)
+
+    def _on_busca_change(self, event):
+        if hasattr(self, "_busca_timer") and self._busca_timer:
+            self.after_cancel(self._busca_timer)
+        self._busca_timer = self.after(300, self._aplicar_filtro)
+
+    def _aplicar_filtro(self):
+        if not self.gallery_scroll:
+            return
+            
+        termo = self.entry_busca.get().lower().strip()
+        if not termo:
+            fotos_filtradas = self._fotos_lista
+        else:
+            fotos_filtradas = [f for f in self._fotos_lista if termo in f.stem.lower()]
+            
+        self.lbl_galeria_count.configure(text=f"{len(fotos_filtradas)} foto(s) encontrada(s)")
+        
+        for w in self.gallery_scroll.winfo_children():
+            w.destroy()
+            
+        self.after(50, self._carregar_galeria_lote, fotos_filtradas, 0)
 
     def _carregar_galeria_lote(self, fotos: list[Path], inicio: int):
         LOTE = GALLERY_COLS * 2
