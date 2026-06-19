@@ -1,4 +1,4 @@
-# Bitrix24 Foto Downloader (Edicao Segura v2.1)
+# Bitrix24 Foto Downloader (by INFINITYTEK)
 
 Este aplicativo é uma solução segura com interface gráfica para baixar fotos de perfil de usuários diretamente de um portal Bitrix24 utilizando Webhooks locais.
 
@@ -51,6 +51,16 @@ Para não expor dados críticos no código-fonte ou no repositório:
    .\build_exe.bat
    ```
 5. O aplicativo embutirá essas chaves na memória da compilação de forma segura (utilize o hook do PyInstaller para arquivos invisíveis se necessário). O binário pronto ficará na pasta `dist/`.
+
+## Painel Web de Auditoria (cPanel)
+
+O sistema de auditoria `logger.php` possui agora um Painel de Administração Gráfico embutido (2 em 1) para visualização dos registros enviados pelos usuários.
+
+1. Envie o arquivo `logger.php` para o seu cPanel em uma pasta pública.
+2. Acesse a URL dele diretamente pelo navegador: `https://sua-empresa.com.br/pasta/logger.php`
+3. Entre com a senha de acesso para visualizar o dashboard com IPs, Máquinas e Histórico.
+
+⚠️ **IMPORTANTE:** A senha padrão de fábrica é **`admin`**. Para sua segurança, é obrigatório abrir o código fonte do arquivo `logger.php` e alterar a constante `VIEWER_PASSWORD` para uma senha forte logo no seu primeiro acesso!
 
 
 
