@@ -62,8 +62,8 @@ API_LOGGER_TOKEN = os.getenv("API_LOGGER_TOKEN", "")
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
-ACCENT = "#FFFFFF"
-ACCENT_HOVER = "#E5E5E5"
+ACCENT = "#3F3F46"
+ACCENT_HOVER = "#52525B"
 ERROR_CLR = "#EF4444"
 BG_DARK = "#09090B"
 BG_CARD = "#18181B"
@@ -71,7 +71,7 @@ BG_INPUT = "#27272A"
 TEXT_PRIMARY = "#FAFAFA"
 TEXT_SECONDARY = "#A1A1AA"
 BORDER_COLOR = "#3F3F46"
-TEXT_ON_ACCENT = "#000000"
+TEXT_ON_ACCENT = "#FAFAFA"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Constantes de Operacao
@@ -1160,7 +1160,7 @@ class BitrixApp(ctk.CTk):
 
         ctk.CTkLabel(
             hdr,
-            text="v2.1  |  Edicao Segura",
+            text="v2.1  |  by INFINITYTEK",
             font=ctk.CTkFont("Segoe UI", 11),
             text_color=TEXT_SECONDARY,
         ).pack(side="right", padx=20)
@@ -1499,9 +1499,10 @@ class BitrixApp(ctk.CTk):
         card.grid(row=row, column=col, padx=6, pady=6, sticky="nsew")
 
         try:
+            from PIL import ImageOps
             img = Image.open(path)
-            img.thumbnail(THUMBNAIL_SIZE, Image.LANCZOS)
-            ci = ctk.CTkImage(light_image=img, dark_image=img, size=img.size)
+            img = ImageOps.fit(img, THUMBNAIL_SIZE, Image.LANCZOS)
+            ci = ctk.CTkImage(light_image=img, dark_image=img, size=THUMBNAIL_SIZE)
             lbl = ctk.CTkLabel(
                 card, image=ci, text="", cursor="hand2", fg_color="transparent"
             )
