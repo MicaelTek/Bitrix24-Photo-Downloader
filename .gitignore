@@ -1,0 +1,20 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyInstaller
+dist/
+build/
+*.spec
+
+# Dados Locais e Segredos
+.env
+config.dat
+auditoria.log
+*.sqlite
+*.tmp
+baixar_fotos.log
+
+# Diretorio de Fotos
+fotos_usuarios_bitrix/
