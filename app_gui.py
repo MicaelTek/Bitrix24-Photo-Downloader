@@ -507,6 +507,7 @@ class JanelaCriarSenha(ctk.CTkToplevel):
             return
 
         if self.sec.criar_senha(senha, nome, depto):
+            self.master.deiconify()
             self.destroy()
         else:
             self.lbl_erro.configure(text="Erro ao criar senha. Tente novamente.")
@@ -599,7 +600,7 @@ class JanelaLogin(ctk.CTkToplevel):
         ctk.CTkButton(
             self,
             text="Esqueci minha senha / Resetar App",
-            font=ctk.CTkFont("Segoe UI", 11, "underline"),
+            font=ctk.CTkFont("Segoe UI", 11, underline=True),
             fg_color="transparent",
             hover_color=BG_CARD,
             text_color=TEXT_SECONDARY,
@@ -696,6 +697,7 @@ class JanelaLogin(ctk.CTkToplevel):
 
         sucesso, msg = self.sec.autenticar(senha)
         if sucesso:
+            self.master.deiconify()
             self.destroy()
             return
 
