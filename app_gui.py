@@ -162,6 +162,7 @@ class SecurityManager:
             return {}
 
     def _salvar_config(self, config: dict) -> None:
+        self.CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
         with open(self.CONFIG_FILE, "w", encoding="utf-8") as f:
             json.dump(config, f, indent=2)
 
@@ -508,11 +509,14 @@ class JanelaCriarSenha(ctk.CTkToplevel):
         if not nome or not depto:
             self.lbl_erro.configure(text="Preencha seu Nome e Departamento.")
             return
-        if len(senha) < 6:
-            self.lbl_erro.configure(text="A senha deve ter ao menos 6 caracteres.")
+        if len(senha) < 8:
+            self.lbl_erro.configure(text="A senha deve ter ao menos 8 caracteres.")
+            return
+        if not any(c.isalpha() for c in senha) or not any(c.isdigit() for c in senha):
+            self.lbl_erro.configure(text="A senha deve conter letras e números.")
             return
         if senha != confirma:
-            self.lbl_erro.configure(text="As senhas nao coincidem. Tente novamente.")
+            self.lbl_erro.configure(text="As senhas não coincidem. Tente novamente.")
             self.entry_confirma.delete(0, "end")
             return
 
