@@ -452,7 +452,7 @@ class JanelaCriarSenha(ctk.CTkToplevel):
         # Senha
         ctk.CTkLabel(
             card,
-            text="Nova senha (minimo 6 caracteres):",
+            text="Nova senha (minimo 8 caracteres):",
             font=ctk.CTkFont("Segoe UI", 12),
             text_color=TEXT_SECONDARY,
         ).pack(anchor="w", padx=16, pady=(12, 4))
@@ -484,6 +484,17 @@ class JanelaCriarSenha(ctk.CTkToplevel):
         )
         self.entry_confirma.pack(fill="x", padx=16, pady=(4, 16))
 
+        self.lbl_match = ctk.CTkLabel(
+            card,
+            text="",
+            font=ctk.CTkFont("Segoe UI", 11),
+            height=14,
+        )
+        self.lbl_match.pack(anchor="w", padx=16, pady=(0, 4))
+
+        self.entry_senha.bind("<KeyRelease>", self._verificar_match)
+        self.entry_confirma.bind("<KeyRelease>", self._verificar_match)
+
         # O botão agora está dentro do 'card'
         ctk.CTkButton(
             card,
@@ -507,6 +518,18 @@ class JanelaCriarSenha(ctk.CTkToplevel):
         self.entry_senha.bind("<Return>", lambda e: self.entry_confirma.focus())
         self.entry_confirma.bind("<Return>", lambda e: self._confirmar())
         self.entry_nome.focus()
+
+    def _verificar_match(self, event=None):
+        senha = self.entry_senha.get()
+        confirma = self.entry_confirma.get()
+        if not confirma:
+            self.lbl_match.configure(text="")
+            return
+        
+        if senha == confirma:
+            self.lbl_match.configure(text="As senhas coincidem ✔", text_color="#22C55E")
+        else:
+            self.lbl_match.configure(text="As senhas estão diferentes ❌", text_color=ERROR_CLR)
 
     def _confirmar(self):
         nome = self.entry_nome.get().strip()
