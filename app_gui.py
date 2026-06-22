@@ -50,7 +50,15 @@ from urllib3.util.retry import Retry
 # ─────────────────────────────────────────────────────────────────────────────
 # O PyInstaller embute esse arquivo no executável se configurado,
 # ou os valores ficarão fixos na memória durante o build dependendo do setup.
-load_dotenv()
+def resource_path(relative_path):
+    """Obtém o caminho absoluto, funcionando tanto em dev quanto no PyInstaller"""
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+load_dotenv(resource_path(".env"))
 
 API_WEBHOOK_URL = os.getenv("API_WEBHOOK_URL", "")
 API_LOGGER_URL = os.getenv("API_LOGGER_URL", "")

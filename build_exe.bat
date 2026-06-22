@@ -42,6 +42,7 @@ python -m PyInstaller ^
     --hidden-import cryptography.hazmat.primitives.kdf.pbkdf2 ^
     --hidden-import cryptography.hazmat.primitives.hashes ^
     --hidden-import cryptography.fernet ^
+    --add-data ".env;." ^
     app_gui.py
 
 if %errorlevel% neq 0 (
